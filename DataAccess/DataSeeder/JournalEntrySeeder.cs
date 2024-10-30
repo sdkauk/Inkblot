@@ -26,7 +26,7 @@ public class JournalEntrySeeder
                 Id = Guid.NewGuid(),
                 UserId = Guid.NewGuid(),
                 CreatedUtc = DateTime.UtcNow,
-                UpdateUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
                 Content = "This is some dummy content for a journal entry."
             },
             new JournalEntry
@@ -34,7 +34,7 @@ public class JournalEntrySeeder
                 Id = Guid.NewGuid(),
                 UserId = Guid.NewGuid(),
                 CreatedUtc = DateTime.UtcNow,
-                UpdateUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
                 Content = "This is some dummy content for a journal entry."
             }
         };
