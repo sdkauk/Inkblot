@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Inkblot", "Inkblot\Inkblot.csproj", "{D01404AD-59E3-4F37-AA50-1CA146E43B97}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Inkblot.API", "Inkblot\Inkblot.API.csproj", "{D01404AD-59E3-4F37-AA50-1CA146E43B97}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Inkblot.DataAccess", "DataAccess\Inkblot.DataAccess.csproj", "{D0A79005-1670-4339-84B5-8148E92C26AE}"
 EndProject

@@ -8,6 +8,8 @@ namespace Inkblot.Common.Models
         [BsonId]
         [BsonRepresentation(BsonType.String)]
         public Guid Id { get; set; }
+
+        [BsonRepresentation(BsonType.String)]
         public Guid UserId { get; set; }
         public DateTime CreatedUtc { get; set; }
         public DateTime UpdateUtc { get; set; }

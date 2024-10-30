@@ -3,7 +3,7 @@ using Inkblot.Common.Models;
 using Inkblot.DataAccess;
 using Microsoft.Extensions.Configuration;
 
-namespace PaperTrade.DataAccess
+namespace Inkblot.DataAccess
 {
     public class DbConnection : IDbConnection
     {
