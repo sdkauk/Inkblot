@@ -4,7 +4,7 @@ using Inkblot.DataAccess.Repositories;
 
 namespace Inkblot.BusinessLogic.JournalEntries
 {
-    public class JournalEntryService
+    public class JournalEntryService : IJournalEntryService
     {
         private readonly IJournalEntryRepository journalEntryRepository;
 
@@ -35,7 +35,7 @@ namespace Inkblot.BusinessLogic.JournalEntries
                 Id = Guid.NewGuid(),
                 UserId = request.UserId,
                 CreatedUtc = DateTime.UtcNow,
-                UpdateUtc = DateTime.UtcNow,
+                UpdatedUtc = DateTime.UtcNow,
                 Content = request.Content
             };
 
@@ -43,7 +43,7 @@ namespace Inkblot.BusinessLogic.JournalEntries
             return journalEntry;
         }
 
-        public async Task<JournalEntry> UpdateBriefAsync(JournalEntryPutRequest request)
+        public async Task<JournalEntry> UpdateJournalEntryAsync(JournalEntryPutRequest request)
         {
             var entry = await journalEntryRepository.GetJournalEntryAsync(request.Id);
 
