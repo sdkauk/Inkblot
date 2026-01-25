@@ -1,10 +1,12 @@
 ﻿using Inkblot.BusinessLogic.JournalEntries;
 using Inkblot.BusinessLogic.JournalEntries.Requests;
 using Inkblot.Common.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inkblot.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class JournalEntryController : ControllerBase
