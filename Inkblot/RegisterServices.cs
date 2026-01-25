@@ -1,4 +1,5 @@
-﻿using Inkblot.DataAccess;
+﻿using Inkblot.BusinessLogic.JournalEntries;
+using Inkblot.DataAccess;
 using Inkblot.DataAccess.DataSeeder;
 using Inkblot.DataAccess.Repositories;
 
@@ -17,6 +18,8 @@ namespace Inkblot.API
             builder.Services.AddScoped<IJournalEntryRepository, JournalEntryRepository>();
             builder.Services.AddTransient<JournalEntrySeeder>();
             builder.Services.AddTransient<DataSeeder>();
+
+            builder.Services.AddScoped<IJournalEntryService, JournalEntryService>();
 
             builder.Services.AddControllers();
         }
