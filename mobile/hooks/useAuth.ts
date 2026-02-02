@@ -1,18 +1,26 @@
-import { useAuth0 } from "react-native-auth0";
+import { useAuth0, WebAuthError, WebAuthErrorCodes } from "react-native-auth0";
 import { config } from "../config";
 
 export function useAuth() {
   const { authorize, clearSession, user, isLoading, getCredentials } =
     useAuth0();
 
-  const login = async () => {
+  const login = async (): Promise<boolean> => {
     try {
       await authorize({
         audience: config.auth0.audience,
         scope: "openid profile email offline_access",
       });
+      return true;
     } catch (error) {
+      if (
+        error instanceof WebAuthError &&
+        error.type === WebAuthErrorCodes.USER_CANCELLED
+      ) {
+        return false;
+      }
       console.error("Login failed:", error);
+      return false;
     }
   };
 
@@ -24,10 +32,10 @@ export function useAuth() {
     }
   };
 
-  const getAccessToken = async () => {
+  const getAccessToken = async (): Promise<string | null> => {
     try {
       const credentials = await getCredentials();
-      return credentials?.accessToken;
+      return credentials?.accessToken ?? null;
     } catch (error) {
       console.error("Failed to get token:", error);
       return null;
