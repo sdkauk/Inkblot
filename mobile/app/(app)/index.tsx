@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
+import { journalService } from "@/services/journalService";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { Keyboard, Pressable, StyleSheet, Text, TextInput } from "react-native";
@@ -35,10 +36,19 @@ export default function Journal() {
 
   const swipeUp = Gesture.Fling()
     .direction(Directions.UP)
-    .onEnd(() => {
+    .onEnd(async () => {
+      if (text.trim()) {
+        try {
+          await journalService.createJournalEntry({ content: text });
+        } catch (error) {
+          console.error("Failed to save entry:", error);
+          return;
+        }
+      }
       setText("");
     })
     .runOnJS(true);
+
   const tap = Gesture.Tap()
     .onEnd(() => {
       setIsEditing(true);
