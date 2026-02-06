@@ -24,7 +24,7 @@ namespace Inkblot.DataAccess.Repositories
             return results.FirstOrDefault();
         }
 
-        public async Task<List<JournalEntry>> GetJournalEntriesByUserAsync(Guid userId)
+        public async Task<List<JournalEntry>> GetJournalEntriesByUserAsync(string userId)
         {
             var results = await journalEntries.FindAsync(j => j.UserId == userId);
             return results.ToList();

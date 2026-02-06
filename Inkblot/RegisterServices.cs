@@ -20,8 +20,6 @@ namespace Inkblot.API
             builder.Services.AddTransient<DataSeeder>();
 
             builder.Services.AddScoped<IJournalEntryService, JournalEntryService>();
-
-            builder.Services.AddControllers();
         }
     }
 }

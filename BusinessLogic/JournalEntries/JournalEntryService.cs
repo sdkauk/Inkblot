@@ -13,27 +13,30 @@ namespace Inkblot.BusinessLogic.JournalEntries
             this.journalEntryRepository = journalEntryRepository;
         }
 
-        public async Task<IEnumerable<JournalEntry>> GetAllJournalEntriesAsync()
+        public async Task<JournalEntry> GetJournalEntryAsync(Guid id, string userId)
         {
-            return await journalEntryRepository.GetAllJournalEntriesAsync();
+            var entry = await journalEntryRepository.GetJournalEntryAsync(id);
+
+            if (entry == null)
+                throw new KeyNotFoundException($"Journal entry with id {id} does not exist.");
+
+            if (entry.UserId != userId)
+                throw new UnauthorizedAccessException("You do not have access to this journal entry.");
+
+            return entry;
         }
 
-        public async Task<JournalEntry> GetJournalEntryAsync(Guid id)
-        {
-            return await journalEntryRepository.GetJournalEntryAsync(id);
-        }
-
-        public async Task<IEnumerable<JournalEntry>> GetJournalEntriesByUserAsync(Guid userId)
+        public async Task<IEnumerable<JournalEntry>> GetJournalEntriesByUserAsync(string userId)
         {
             return await journalEntryRepository.GetJournalEntriesByUserAsync(userId);
         }
 
-        public async Task<JournalEntry> CreateJournalEntry(JournalEntryPostRequest request)
+        public async Task<JournalEntry> CreateJournalEntryAsync(JournalEntryPostRequest request, string userId)
         {
-            var journalEntry = new JournalEntry()
+            var journalEntry = new JournalEntry
             {
                 Id = Guid.NewGuid(),
-                UserId = request.UserId,
+                UserId = userId,
                 CreatedUtc = DateTime.UtcNow,
                 UpdatedUtc = DateTime.UtcNow,
                 Content = request.Content
@@ -43,14 +46,15 @@ namespace Inkblot.BusinessLogic.JournalEntries
             return journalEntry;
         }
 
-        public async Task<JournalEntry> UpdateJournalEntryAsync(JournalEntryPutRequest request)
+        public async Task<JournalEntry> UpdateJournalEntryAsync(JournalEntryPutRequest request, string userId)
         {
             var entry = await journalEntryRepository.GetJournalEntryAsync(request.Id);
 
             if (entry == null)
-            {
-                throw new Exception($"Journal entry with id {request.Id} does not exist.");
-            }
+                throw new KeyNotFoundException($"Journal entry with id {request.Id} does not exist.");
+
+            if (entry.UserId != userId)
+                throw new UnauthorizedAccessException("You do not have access to this journal entry.");
 
             if (request.Content != null)
             {
@@ -62,10 +66,17 @@ namespace Inkblot.BusinessLogic.JournalEntries
             return entry;
         }
 
-        public async Task DeleteJournalEntryAsync(Guid id)
+        public async Task DeleteJournalEntryAsync(Guid id, string userId)
         {
+            var entry = await journalEntryRepository.GetJournalEntryAsync(id);
+
+            if (entry == null)
+                throw new KeyNotFoundException($"Journal entry with id {id} does not exist.");
+
+            if (entry.UserId != userId)
+                throw new UnauthorizedAccessException("You do not have access to this journal entry.");
+
             await journalEntryRepository.DeleteJournalEntryAsync(id);
         }
-
     }
 }

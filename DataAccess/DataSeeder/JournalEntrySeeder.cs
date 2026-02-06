@@ -24,7 +24,7 @@ public class JournalEntrySeeder
             new JournalEntry
             {
                 Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
+                UserId = Guid.NewGuid().ToString(),
                 CreatedUtc = DateTime.UtcNow,
                 UpdatedUtc = DateTime.UtcNow,
                 Content = "This is some dummy content for a journal entry."
@@ -32,7 +32,7 @@ public class JournalEntrySeeder
             new JournalEntry
             {
                 Id = Guid.NewGuid(),
-                UserId = Guid.NewGuid(),
+                UserId = Guid.NewGuid().ToString(),
                 CreatedUtc = DateTime.UtcNow,
                 UpdatedUtc = DateTime.UtcNow,
                 Content = "This is some dummy content for a journal entry."

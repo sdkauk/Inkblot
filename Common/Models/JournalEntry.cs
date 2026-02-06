@@ -9,8 +9,7 @@ namespace Inkblot.Common.Models
         [BsonRepresentation(BsonType.String)]
         public Guid Id { get; set; }
 
-        [BsonRepresentation(BsonType.String)]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
         public DateTime CreatedUtc { get; set; }
         public DateTime UpdatedUtc { get; set; }
         public string Content { get; set; }

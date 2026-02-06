@@ -5,11 +5,10 @@ namespace Inkblot.BusinessLogic.JournalEntries
 {
     public interface IJournalEntryService
     {
-        Task<JournalEntry> CreateJournalEntry(JournalEntryPostRequest request);
-        Task DeleteJournalEntryAsync(Guid id);
-        Task<IEnumerable<JournalEntry>> GetAllJournalEntriesAsync();
-        Task<IEnumerable<JournalEntry>> GetJournalEntriesByUserAsync(Guid userId);
-        Task<JournalEntry> GetJournalEntryAsync(Guid id);
-        Task<JournalEntry> UpdateJournalEntryAsync(JournalEntryPutRequest request);
+        Task<JournalEntry> CreateJournalEntryAsync(JournalEntryPostRequest request, string userId);
+        Task DeleteJournalEntryAsync(Guid id, string userId);
+        Task<IEnumerable<JournalEntry>> GetJournalEntriesByUserAsync(string userId);
+        Task<JournalEntry> GetJournalEntryAsync(Guid id, string userId);
+        Task<JournalEntry> UpdateJournalEntryAsync(JournalEntryPutRequest request, string userId);
     }
 }

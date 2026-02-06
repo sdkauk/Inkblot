@@ -7,7 +7,7 @@ namespace Inkblot.DataAccess.Repositories
         Task CreateJournalEntryAsync(JournalEntry journalEntry);
         Task DeleteJournalEntryAsync(Guid id);
         Task<List<JournalEntry>> GetAllJournalEntriesAsync();
-        Task<List<JournalEntry>> GetJournalEntriesByUserAsync(Guid userId);
+        Task<List<JournalEntry>> GetJournalEntriesByUserAsync(string userId);
         Task<JournalEntry> GetJournalEntryAsync(Guid id);
         Task UpdateJournalEntryAsync(JournalEntry journalEntry);
     }

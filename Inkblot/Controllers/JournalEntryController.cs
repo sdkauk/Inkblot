@@ -1,15 +1,12 @@
 ﻿using Inkblot.BusinessLogic.JournalEntries;
 using Inkblot.BusinessLogic.JournalEntries.Requests;
 using Inkblot.Common.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inkblot.API.Controllers
 {
-    [Authorize]
-    [ApiController]
     [Route("[controller]")]
-    public class JournalEntryController : ControllerBase
+    public class JournalEntryController : BaseController
     {
 
         private readonly IJournalEntryService journalEntryService;
@@ -22,37 +19,41 @@ namespace Inkblot.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<JournalEntry>>> Get()
         {
-            var entries = await journalEntryService.GetAllJournalEntriesAsync();
+            var userId = GetCurrentUserId();
+            var entries = await journalEntryService.GetJournalEntriesByUserAsync(userId);
             return Ok(entries);
         }
 
         [HttpGet("{id:Guid}")]
         public async Task<ActionResult<JournalEntry>> Get(Guid id)
         {
-            var entry = await journalEntryService.GetJournalEntryAsync(id);
+            var userId = GetCurrentUserId();
+            var entry = await journalEntryService.GetJournalEntryAsync(id, userId);
             return Ok(entry);
         }
 
         [HttpPost]
         public async Task<ActionResult<JournalEntry>> Post(JournalEntryPostRequest request)
         {
-            var entry = await journalEntryService.CreateJournalEntry(request);
+            var userId = GetCurrentUserId();
+            var entry = await journalEntryService.CreateJournalEntryAsync(request, userId);
             return CreatedAtAction(nameof(Get), new { id = entry.Id }, entry);
         }
 
         [HttpPut]
         public async Task<IActionResult> Put(JournalEntryPutRequest request)
         {
-            var brief = await journalEntryService.UpdateJournalEntryAsync(request);
-            return Ok(brief);
+            var userId = GetCurrentUserId();
+            var entry = await journalEntryService.UpdateJournalEntryAsync(request, userId);
+            return Ok(entry);
         }
 
         [HttpDelete("{id:Guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            await journalEntryService.DeleteJournalEntryAsync(id);
+            var userId = GetCurrentUserId();
+            await journalEntryService.DeleteJournalEntryAsync(id, userId);
             return NoContent();
         }
-
     }
 }
