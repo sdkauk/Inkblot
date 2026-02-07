@@ -26,5 +26,3 @@ export default function EntryDetail() {
     </>
   );
 }
-
-type EntryDetailProps = {};

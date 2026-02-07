@@ -11,6 +11,8 @@ import {
 import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Drawer from "../../components/Drawer";
+import HistoryList from "../../components/HistoryList";
 
 export default function Journal() {
   const [text, setText] = useState("");
@@ -19,6 +21,8 @@ export default function Journal() {
   const inputRef = useRef<TextInput>(null);
   const { logout } = useAuth();
   const router = useRouter();
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(true);
 
   const handleFocus = () => {
     setIsEditing(true);
@@ -49,6 +53,11 @@ export default function Journal() {
     })
     .runOnJS(true);
 
+  const swipeDown = Gesture.Fling()
+    .direction(Directions.DOWN)
+    .onEnd(() => setDrawerVisible(true))
+    .runOnJS(true);
+
   const tap = Gesture.Tap()
     .onEnd(() => {
       setIsEditing(true);
@@ -56,7 +65,7 @@ export default function Journal() {
     })
     .runOnJS(true);
 
-  const gestures = Gesture.Race(swipeUp, tap);
+  const gestures = Gesture.Race(swipeUp, swipeDown, tap);
 
   const buttonStyle = useAnimatedStyle(() => ({
     bottom: Math.max(20, -height.value + 20),
@@ -69,12 +78,6 @@ export default function Journal() {
           <Animated.View style={styles.overlay} pointerEvents="box-only" />
         </GestureDetector>
       )}
-      <Pressable onPress={() => router.push("/(app)/history")}>
-        <Text>☰</Text>
-      </Pressable>
-      <Pressable onPress={handleLogout} style={styles.logoutButton}>
-        <Text style={styles.logoutText}>Log Out</Text>
-      </Pressable>
       <TextInput
         ref={inputRef}
         value={text}
@@ -89,6 +92,13 @@ export default function Journal() {
           <Text style={styles.clearButtonText}>✕</Text>
         </Pressable>
       </Animated.View>
+      <Drawer
+        visible={drawerVisible}
+        onDismiss={() => setDrawerVisible(false)}
+        canDismiss
+      >
+        <HistoryList onAtBottomChange={setIsAtBottom} />
+      </Drawer>
     </SafeAreaView>
   );
 }
