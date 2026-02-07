@@ -38,4 +38,16 @@ export const journalService = {
 
     return response.json();
   },
+
+  getJournalEntry: async (id: string): Promise<JournalEntry> => {
+    const response = await api(`/JournalEntry/${id}`, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to get journal entry`);
+    }
+
+    return response.json();
+  },
 };
