@@ -69,6 +69,9 @@ export default function Journal() {
           <Animated.View style={styles.overlay} pointerEvents="box-only" />
         </GestureDetector>
       )}
+      <Pressable onPress={() => router.push("/(app)/history")}>
+        <Text>☰</Text>
+      </Pressable>
       <Pressable onPress={handleLogout} style={styles.logoutButton}>
         <Text style={styles.logoutText}>Log Out</Text>
       </Pressable>

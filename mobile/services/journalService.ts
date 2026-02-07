@@ -1,9 +1,10 @@
 import { api } from "@/utils/api";
 
 export interface JournalEntry {
+  id: string;
   content: string;
-  createdUtc: Date;
-  updatedUtc: Date;
+  createdUtc: string;
+  updatedUtc: string;
 }
 
 export interface JournalEntryPostRequest {
@@ -14,15 +15,25 @@ export const journalService = {
   createJournalEntry: async (
     request: JournalEntryPostRequest,
   ): Promise<JournalEntry> => {
-    console.log("ABOUT TO POST");
     const response = await api(`/JournalEntry`, {
       method: "POST",
       body: JSON.stringify(request),
     });
-    console.log("FINISHED POSTING");
 
     if (!response.ok) {
       throw new Error(`Failed to create journal entry.`);
+    }
+
+    return response.json();
+  },
+
+  getJournalEntries: async (): Promise<JournalEntry[]> => {
+    const response = await api(`/JournalEntry`, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to get journal entries`);
     }
 
     return response.json();
