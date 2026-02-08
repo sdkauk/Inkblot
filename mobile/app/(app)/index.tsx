@@ -22,7 +22,6 @@ export default function Journal() {
   const { logout } = useAuth();
   const router = useRouter();
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [isAtBottom, setIsAtBottom] = useState(true);
 
   const handleFocus = () => {
     setIsEditing(true);
@@ -36,6 +35,10 @@ export default function Journal() {
   const handleLogout = async () => {
     await logout();
     router.replace("/");
+  };
+
+  const handleDismissDrawer = () => {
+    setDrawerVisible(false);
   };
 
   const swipeUp = Gesture.Fling()
@@ -92,12 +95,14 @@ export default function Journal() {
           <Text style={styles.clearButtonText}>✕</Text>
         </Pressable>
       </Animated.View>
-      <Drawer
-        visible={drawerVisible}
-        onDismiss={() => setDrawerVisible(false)}
-        canDismiss
-      >
-        <HistoryList onAtBottomChange={setIsAtBottom} />
+      <Drawer visible={drawerVisible} onDismiss={handleDismissDrawer}>
+        {({ translateY, screenHeight }) => (
+          <HistoryList
+            onDismiss={handleDismissDrawer}
+            translateY={translateY}
+            screenHeight={screenHeight}
+          />
+        )}
       </Drawer>
     </SafeAreaView>
   );
@@ -106,14 +111,6 @@ export default function Journal() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  logoutButton: {
-    alignSelf: "flex-end",
-    padding: 15,
-  },
-  logoutText: {
-    color: "#999",
-    fontSize: 16,
   },
   input: {
     flex: 1,

@@ -1,22 +1,37 @@
 import { JournalEntry, journalService } from "@/services/journalService";
-import { useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { formatDate } from "@/utils/format";
+import { useEffect, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  Easing,
+  runOnJS,
+  SharedValue,
+  useAnimatedScrollHandler,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
-export default function HistoryList({ onAtBottomChange }: HistoryListProps) {
+const AnimatedFlatList = Animated.createAnimatedComponent(
+  FlatList<JournalEntry>,
+);
+
+export default function HistoryList({
+  onDismiss,
+  translateY,
+  screenHeight,
+}: HistoryListProps) {
   const [entries, setEntries] = useState<JournalEntry[]>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const flatListRef = useRef<FlatList>(null);
 
-  const [isAtBottom, setIsAtBottom] = useState(true);
-  const router = useRouter();
+  const isScrollAtBottom = useSharedValue(true);
 
   const fetchEntries = async () => {
     setLoading(true);
     try {
-      var entries = await journalService.getJournalEntries();
-      setEntries(entries.reverse());
+      const result = await journalService.getJournalEntries();
+      setEntries(result.reverse());
     } catch (e) {
       setError("Failed to load entries");
     } finally {
@@ -28,67 +43,84 @@ export default function HistoryList({ onAtBottomChange }: HistoryListProps) {
     fetchEntries();
   }, []);
 
-  type ItemProps = { title: string; preview: string; id: string };
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      isScrollAtBottom.value = event.contentOffset.y <= 5;
+    },
+  });
 
-  const Item = ({ title, preview }: ItemProps) => (
-    <View style={styles.item}>
-      <Text style={styles.date}>{title}</Text>
-      <Text style={styles.preview} numberOfLines={2}>
-        {preview}
-      </Text>
-    </View>
+  const nativeGesture = Gesture.Native();
+
+  const panGesture = Gesture.Pan()
+    .activeOffsetY(-10)
+    .failOffsetY(10)
+    .simultaneousWithExternalGesture(nativeGesture)
+    .onEnd((event) => {
+      const swipedFarEnough = event.translationY < -30;
+      const swipedFastEnough = event.velocityY < -300;
+
+      if (isScrollAtBottom.value && (swipedFarEnough || swipedFastEnough)) {
+        translateY.value = withTiming(
+          -screenHeight,
+          {
+            duration: 250,
+            easing: Easing.out(Easing.ease),
+          },
+          (finished) => {
+            if (finished) {
+              runOnJS(onDismiss)();
+            }
+          },
+        );
+      }
+    });
+
+  const composedGesture = Gesture.Simultaneous(panGesture, nativeGesture);
+
+  const Item = ({ entry }: { entry: JournalEntry }) => (
+    <Pressable>
+      <View style={styles.item}>
+        <Text style={styles.date}>{formatDate(entry.createdUtc)}</Text>
+        <Text style={styles.preview} numberOfLines={2}>
+          {entry.content}
+        </Text>
+      </View>
+    </Pressable>
   );
 
   return (
-    <FlatList
-      inverted
-      onScroll={({ nativeEvent }) => {
-        const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-        const atBottom = nativeEvent.contentOffset.y <= 0;
-        setIsAtBottom(atBottom);
-        onAtBottomChange(atBottom);
-      }}
-      scrollEventThrottle={16}
-      ref={flatListRef}
-      onContentSizeChange={() =>
-        flatListRef.current?.scrollToEnd({ animated: false })
-      }
-      style={styles.list}
-      contentContainerStyle={styles.listContent}
-      ListEmptyComponent={
-        !loading ? (
-          <View style={styles.empty}>
-            <Text style={styles.emptyText}>No entries yet</Text>
-          </View>
-        ) : null
-      }
-      refreshing={loading}
-      onRefresh={fetchEntries}
-      data={entries}
-      renderItem={({ item }) => (
-        <Pressable
-          onPress={() => router.push(`/(app)/entry/${item.id}` as any)}
-        >
-          <Item
-            title={new Date(item.createdUtc).toLocaleDateString()}
-            preview={item.content}
-            id={item.id}
-          />
-        </Pressable>
-      )}
-      keyExtractor={(entry) => entry.id}
-    />
+    <GestureDetector gesture={composedGesture}>
+      <AnimatedFlatList
+        inverted
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        style={styles.list}
+        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={
+          !loading ? (
+            <View style={styles.empty}>
+              <Text style={styles.emptyText}>No entries yet</Text>
+            </View>
+          ) : null
+        }
+        data={entries}
+        renderItem={({ item }) => <Item entry={item} />}
+        keyExtractor={(entry) => entry.id}
+      />
+    </GestureDetector>
   );
 }
 
 export interface HistoryListProps {
-  onAtBottomChange: (atBottom: boolean) => void;
+  onDismiss: () => void;
+  translateY: SharedValue<number>;
+  screenHeight: number;
 }
 
 const styles = StyleSheet.create({
   list: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#FAF9F6",
   },
   listContent: {
     padding: 16,
@@ -96,17 +128,17 @@ const styles = StyleSheet.create({
   item: {
     paddingVertical: 14,
     paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "rgba(0,0,0,0.08)",
   },
   date: {
     fontSize: 13,
-    color: "#666",
+    color: "rgba(0,0,0,0.4)",
     marginBottom: 4,
   },
   preview: {
     fontSize: 16,
-    color: "#000",
+    color: "rgba(0,0,0,0.6)",
     lineHeight: 22,
   },
   empty: {
@@ -115,6 +147,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: "#999",
+    color: "rgba(0,0,0,0.4)",
   },
 });

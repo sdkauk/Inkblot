@@ -1,76 +1,71 @@
 import { colors } from "@/constants/theme";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
-import {
-  Directions,
-  Gesture,
-  GestureDetector,
-} from "react-native-gesture-handler";
 import Animated, {
   Easing,
+  SharedValue,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
 
-export default function Drawer({
-  visible,
-  onDismiss,
-  canDismiss,
-  children,
-}: DrawerProps) {
-  const [mounted, setMounted] = useState(false);
+export default function Drawer({ visible, onDismiss, children }: DrawerProps) {
   const screenHeight = Dimensions.get("window").height;
   const translateY = useSharedValue(-screenHeight);
+  const display = useSharedValue<"flex" | "none">("none");
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
+    display: display.value,
   }));
-
-  const swipeUp = Gesture.Fling()
-    .direction(Directions.UP)
-    .onEnd(() => {
-      if (canDismiss) {
-        onDismiss();
-      }
-    })
-    .runOnJS(true);
 
   useEffect(() => {
     if (visible) {
-      setMounted(true);
+      display.value = "flex";
       translateY.value = withTiming(0, {
         duration: 300,
         easing: Easing.out(Easing.ease),
       });
     } else {
-      translateY.value = withTiming(-screenHeight, {
-        duration: 300,
-        easing: Easing.out(Easing.ease),
-      });
-      setTimeout(() => setMounted(false), 300);
+      if (translateY.value > -screenHeight + 10) {
+        translateY.value = withTiming(
+          -screenHeight,
+          {
+            duration: 300,
+            easing: Easing.out(Easing.ease),
+          },
+          (finished) => {
+            if (finished) {
+              display.value = "none";
+            }
+          },
+        );
+      } else {
+        display.value = "none";
+      }
     }
   }, [visible]);
 
-  if (!mounted) return null;
   return (
-    <View style={styles.view}>
-      <GestureDetector gesture={swipeUp}>
-        <Animated.View
-          style={[animatedStyle, styles.animatedView, { height: screenHeight }]}
-        >
-          {children}
-        </Animated.View>
-      </GestureDetector>
+    <View style={styles.view} pointerEvents={visible ? "auto" : "none"}>
+      <Animated.View
+        style={[animatedStyle, styles.animatedView, { height: screenHeight }]}
+      >
+        {children({ translateY, screenHeight })}
+      </Animated.View>
     </View>
   );
+}
+
+export interface DrawerChildProps {
+  translateY: SharedValue<number>;
+  screenHeight: number;
 }
 
 export interface DrawerProps {
   visible: boolean;
   onDismiss: () => void;
-  canDismiss: boolean;
-  children: React.ReactNode;
+  children: (props: DrawerChildProps) => React.ReactNode;
 }
 
 const styles = StyleSheet.create({
@@ -81,9 +76,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 10,
-    backgroundColor: "#FAF9F6",
   },
   animatedView: {
     backgroundColor: colors.background,
+    overflow: "hidden",
   },
 });
