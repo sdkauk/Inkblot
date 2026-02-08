@@ -11,6 +11,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import EntryCard from "./EntryCard";
 
 const AnimatedFlatList = Animated.createAnimatedComponent(
   FlatList<JournalEntry>,
@@ -24,6 +25,7 @@ export default function HistoryList({
   const [entries, setEntries] = useState<JournalEntry[]>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
 
   const isScrollAtBottom = useSharedValue(true);
 
@@ -78,7 +80,7 @@ export default function HistoryList({
   const composedGesture = Gesture.Simultaneous(panGesture, nativeGesture);
 
   const Item = ({ entry }: { entry: JournalEntry }) => (
-    <Pressable>
+    <Pressable onPress={() => setSelectedEntry(entry)}>
       <View style={styles.item}>
         <Text style={styles.date}>{formatDate(entry.createdUtc)}</Text>
         <Text style={styles.preview} numberOfLines={2}>
@@ -89,25 +91,33 @@ export default function HistoryList({
   );
 
   return (
-    <GestureDetector gesture={composedGesture}>
-      <AnimatedFlatList
-        inverted
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        style={styles.list}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          !loading ? (
-            <View style={styles.empty}>
-              <Text style={styles.emptyText}>No entries yet</Text>
-            </View>
-          ) : null
-        }
-        data={entries}
-        renderItem={({ item }) => <Item entry={item} />}
-        keyExtractor={(entry) => entry.id}
-      />
-    </GestureDetector>
+    <>
+      <GestureDetector gesture={composedGesture}>
+        <AnimatedFlatList
+          inverted
+          onScroll={scrollHandler}
+          scrollEventThrottle={16}
+          style={styles.list}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            !loading ? (
+              <View style={styles.empty}>
+                <Text style={styles.emptyText}>No entries yet</Text>
+              </View>
+            ) : null
+          }
+          data={entries}
+          renderItem={({ item }) => <Item entry={item} />}
+          keyExtractor={(entry) => entry.id}
+        />
+      </GestureDetector>
+      {selectedEntry && (
+        <EntryCard
+          entry={selectedEntry}
+          onDismiss={() => setSelectedEntry(null)}
+        />
+      )}
+    </>
   );
 }
 
