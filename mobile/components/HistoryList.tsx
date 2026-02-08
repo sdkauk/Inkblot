@@ -21,6 +21,7 @@ export default function HistoryList({
   onDismiss,
   translateY,
   screenHeight,
+  refreshKey,
 }: HistoryListProps) {
   const [entries, setEntries] = useState<JournalEntry[]>();
   const [loading, setLoading] = useState(false);
@@ -43,7 +44,7 @@ export default function HistoryList({
 
   useEffect(() => {
     fetchEntries();
-  }, []);
+  }, [refreshKey]);
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -125,8 +126,8 @@ export interface HistoryListProps {
   onDismiss: () => void;
   translateY: SharedValue<number>;
   screenHeight: number;
+  refreshKey: number;
 }
-
 const styles = StyleSheet.create({
   list: {
     flex: 1,

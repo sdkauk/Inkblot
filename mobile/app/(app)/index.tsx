@@ -1,6 +1,5 @@
-import { useAuth } from "@/hooks/useAuth";
 import { journalService } from "@/services/journalService";
-import { useRouter } from "expo-router";
+import * as Haptics from "expo-haptics";
 import { useRef, useState } from "react";
 import { Keyboard, Pressable, StyleSheet, Text, TextInput } from "react-native";
 import {
@@ -9,19 +8,49 @@ import {
   GestureDetector,
 } from "react-native-gesture-handler";
 import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
-import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import Animated, {
+  Easing,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Drawer from "../../components/Drawer";
 import HistoryList from "../../components/HistoryList";
+import {
+  colors,
+  fonts,
+  fontSize,
+  ink,
+  opacity,
+  spacing,
+} from "../../constants/theme";
 
 export default function Journal() {
   const [text, setText] = useState("");
   const [isEditing, setIsEditing] = useState(true);
   const { height } = useReanimatedKeyboardAnimation();
   const inputRef = useRef<TextInput>(null);
-  const { logout } = useAuth();
-  const router = useRouter();
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const BUTTON_ACTIVE = ink(opacity.full);
+  const BUTTON_INACTIVE = ink(opacity.subtle);
+  const saveTranslateY = useSharedValue(0);
+  const saveOpacity = useSharedValue(1);
+  const [saveError, setSaveError] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const buttonAnimatedStyle = useAnimatedStyle(() => {
+    const isKeyboardUp = height.value < -50;
+    return {
+      bottom: Math.max(20, -height.value + 20),
+      backgroundColor: isKeyboardUp ? BUTTON_ACTIVE : BUTTON_INACTIVE,
+    };
+  });
+  const textAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: saveTranslateY.value }],
+    opacity: saveOpacity.value,
+  }));
 
   const handleFocus = () => {
     setIsEditing(true);
@@ -32,27 +61,38 @@ export default function Journal() {
     setIsEditing(false);
   };
 
-  const handleLogout = async () => {
-    await logout();
-    router.replace("/");
-  };
-
   const handleDismissDrawer = () => {
     setDrawerVisible(false);
   };
 
+  const resetAfterSave = () => {
+    setText("");
+    setRefreshKey((k) => k + 1);
+    requestAnimationFrame(() => {
+      saveTranslateY.value = 0;
+      saveOpacity.value = 1;
+    });
+  };
   const swipeUp = Gesture.Fling()
     .direction(Directions.UP)
     .onEnd(async () => {
-      if (text.trim()) {
-        try {
-          await journalService.createJournalEntry({ content: text });
-        } catch (error) {
-          console.error("Failed to save entry:", error);
-          return;
-        }
+      if (!text.trim()) return;
+      try {
+        await journalService.createJournalEntry({ content: text });
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        saveTranslateY.value = withTiming(-200, {
+          duration: 250,
+          easing: Easing.out(Easing.ease),
+        });
+        saveOpacity.value = withTiming(0, { duration: 250 }, (finished) => {
+          if (finished) {
+            runOnJS(resetAfterSave)();
+          }
+        });
+      } catch (error) {
+        setSaveError(true);
+        setTimeout(() => setSaveError(false), 3000);
       }
-      setText("");
     })
     .runOnJS(true);
 
@@ -70,27 +110,30 @@ export default function Journal() {
 
   const gestures = Gesture.Race(swipeUp, swipeDown, tap);
 
-  const buttonStyle = useAnimatedStyle(() => ({
-    bottom: Math.max(20, -height.value + 20),
-  }));
-
   return (
     <SafeAreaView style={styles.container}>
+      {saveError && (
+        <Text style={styles.errorText}>Couldn't save. Try again.</Text>
+      )}
       {!isEditing && (
         <GestureDetector gesture={gestures}>
           <Animated.View style={styles.overlay} pointerEvents="box-only" />
         </GestureDetector>
       )}
-      <TextInput
-        ref={inputRef}
-        value={text}
-        onChangeText={setText}
-        onFocus={handleFocus}
-        style={styles.input}
-        autoFocus={true}
-        multiline={true}
-      />
-      <Animated.View style={[styles.clearButton, buttonStyle]}>
+      <Animated.View style={[{ flex: 1 }, textAnimatedStyle]}>
+        <TextInput
+          ref={inputRef}
+          value={text}
+          onChangeText={setText}
+          onFocus={handleFocus}
+          style={styles.input}
+          autoFocus={true}
+          multiline={true}
+          // placeholder="What's on your mind..."
+          placeholderTextColor={ink(opacity.subtle)}
+        />
+      </Animated.View>
+      <Animated.View style={[styles.clearButton, buttonAnimatedStyle]}>
         <Pressable onPress={handleClear} style={styles.pressable}>
           <Text style={styles.clearButtonText}>✕</Text>
         </Pressable>
@@ -101,6 +144,7 @@ export default function Journal() {
             onDismiss={handleDismissDrawer}
             translateY={translateY}
             screenHeight={screenHeight}
+            refreshKey={refreshKey}
           />
         )}
       </Drawer>
@@ -111,12 +155,15 @@ export default function Journal() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   input: {
     flex: 1,
-    fontSize: 24,
+    fontFamily: fonts.serif,
+    fontSize: fontSize.writing,
+    color: ink(opacity.full),
     textAlignVertical: "top",
-    padding: 20,
+    padding: spacing.lg,
   },
   overlay: {
     position: "absolute",
@@ -128,18 +175,23 @@ const styles = StyleSheet.create({
   },
   clearButton: {
     position: "absolute",
-    right: 20,
+    right: spacing.lg,
   },
   pressable: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#333",
     justifyContent: "center",
     alignItems: "center",
   },
   clearButtonText: {
-    color: "#fff",
-    fontSize: 20,
+    color: colors.background,
+    fontSize: fontSize.body,
+  },
+  errorText: {
+    textAlign: "center",
+    color: ink(opacity.light),
+    fontSize: fontSize.label,
+    paddingVertical: spacing.sm,
   },
 });

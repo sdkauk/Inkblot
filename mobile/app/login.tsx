@@ -1,45 +1,65 @@
+import {
+  colors,
+  fonts,
+  fontSize,
+  ink,
+  opacity,
+  spacing,
+} from "@/constants/theme";
 import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
 
 export default function Login() {
   const { login } = useAuth();
-  const router = useRouter();
 
   const handleLogin = async () => {
     await login();
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Inkblot</Text>
+    <SafeAreaView style={styles.container}>
+      <View>
+        <Text style={styles.title}>Inkblot</Text>
+        <Text style={styles.subtitle}>A place to think.</Text>
+      </View>
       <Pressable style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Log In</Text>
+        <Text style={styles.buttonText}>Get Started</Text>
       </Pressable>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
+    backgroundColor: colors.background,
+    paddingHorizontal: spacing.lg,
+    justifyContent: "space-between",
+    paddingTop: "30%",
+    paddingBottom: spacing.xxl,
   },
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 40,
+    fontFamily: fonts.serif,
+    fontSize: 64,
+    color: ink(opacity.full),
+  },
+  subtitle: {
+    fontFamily: fonts.sans,
+    fontSize: fontSize.body,
+    color: ink(opacity.medium),
+    marginTop: spacing.sm,
   },
   button: {
-    backgroundColor: "#333",
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    borderRadius: 8,
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: ink(opacity.full),
+    borderRadius: 4,
+    paddingVertical: spacing.md,
+    alignItems: "center",
   },
   buttonText: {
-    color: "#fff",
-    fontSize: 18,
+    fontFamily: fonts.sans,
+    fontSize: fontSize.body,
+    color: ink(opacity.full),
   },
 });

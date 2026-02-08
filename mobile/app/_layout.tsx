@@ -20,14 +20,15 @@ export default function RootLayout() {
 }
 
 function RootNavigator() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) return null;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={!!user}>
         <Stack.Screen name="(app)" />
       </Stack.Protected>
-
       <Stack.Protected guard={!user}>
         <Stack.Screen name="login" />
       </Stack.Protected>
