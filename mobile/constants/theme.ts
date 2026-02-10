@@ -8,6 +8,7 @@ export const fonts = {
 export const colors = {
   background: "#FAF9F6",
   ink: "#000000",
+  scrim: "rgba(0,0,0,0.5)",
 };
 
 export const opacity = {
@@ -21,10 +22,17 @@ export const opacity = {
 export const ink = (opacity: number) => `rgba(0,0,0,${opacity})`;
 
 export const fontSize = {
-  writing: 24,
+  writing: 16,
   body: 16,
-  label: 13,
   ui: 14,
+  label: 13,
+};
+
+export const lineHeight = {
+  writing: 24,
+  body: 24,
+  ui: 20,
+  label: 18,
 };
 
 export const spacing = {

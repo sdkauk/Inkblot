@@ -3,7 +3,16 @@ import { formatDate } from "@/utils/format";
 import { useEffect } from "react";
 import { BackHandler, StyleSheet, Text } from "react-native";
 import { Pressable, ScrollView } from "react-native-gesture-handler";
-import { colors, fontSize, ink, opacity, spacing } from "../constants/theme";
+import {
+  colors,
+  fonts,
+  fontSize,
+  ink,
+  lineHeight,
+  opacity,
+  spacing,
+} from "../constants/theme";
+import CircleButton from "./CircleButton";
 
 export default function EntryCard({ entry, onDismiss }: EntryCardProps) {
   useEffect(() => {
@@ -22,9 +31,7 @@ export default function EntryCard({ entry, onDismiss }: EntryCardProps) {
             <Text style={styles.date}>{formatDate(entry.createdUtc)}</Text>
             <Text style={styles.content}>{entry.content}</Text>
           </ScrollView>
-          <Pressable onPress={onDismiss} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>✕</Text>
-          </Pressable>
+          <CircleButton icon="x" onPress={onDismiss} variant="ghost" />
         </Pressable>
       </Pressable>
     </Pressable>
@@ -37,45 +44,49 @@ export interface EntryCardProps {
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.background,
-    borderWidth: 1,
-    borderColor: ink(opacity.border),
-    borderRadius: 4,
-    padding: spacing.md,
-    flex: 1,
-    marginHorizontal: spacing.lg,
-    marginVertical: spacing.xxl,
-  },
   outerWrapper: {
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: colors.background,
     flex: 1,
   },
   innerWrapper: {
     flex: 1,
-    backgroundColor: ink(0.6),
+    backgroundColor: colors.scrim,
+  },
+  card: {
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: ink(opacity.border),
+    borderRadius: 4,
+    padding: spacing.lg,
+    flex: 1,
+    marginHorizontal: spacing.lg,
+    marginVertical: spacing.xxl,
   },
   date: {
+    fontFamily: fonts.sans,
     fontSize: fontSize.label,
+    lineHeight: lineHeight.label,
     color: ink(opacity.light),
     marginBottom: spacing.sm,
   },
   content: {
+    fontFamily: fonts.serif,
     fontSize: fontSize.body,
+    lineHeight: lineHeight.body,
     color: ink(opacity.full),
-    lineHeight: 24,
   },
   closeButton: {
     alignSelf: "flex-end",
     marginTop: spacing.md,
   },
   closeButtonText: {
+    fontFamily: fonts.sans,
     fontSize: fontSize.body,
+    lineHeight: lineHeight.body,
     color: ink(opacity.light),
   },
 });

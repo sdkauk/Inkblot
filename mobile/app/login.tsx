@@ -3,6 +3,7 @@ import {
   fonts,
   fontSize,
   ink,
+  lineHeight,
   opacity,
   spacing,
 } from "@/constants/theme";
@@ -46,6 +47,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontFamily: fonts.sans,
     fontSize: fontSize.body,
+    lineHeight: lineHeight.body,
     color: ink(opacity.medium),
     marginTop: spacing.sm,
   },
@@ -60,6 +62,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontFamily: fonts.sans,
     fontSize: fontSize.body,
+    lineHeight: lineHeight.body,
     color: ink(opacity.full),
   },
 });

@@ -1,7 +1,8 @@
+import { useAuth } from "@/hooks/useAuth";
 import { journalService } from "@/services/journalService";
 import * as Haptics from "expo-haptics";
 import { useRef, useState } from "react";
-import { Keyboard, Pressable, StyleSheet, Text, TextInput } from "react-native";
+import { Keyboard, StyleSheet, Text, TextInput, View } from "react-native";
 import {
   Directions,
   Gesture,
@@ -16,6 +17,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import CircleButton from "../../components/CircleButton";
 import Drawer from "../../components/Drawer";
 import HistoryList from "../../components/HistoryList";
 import {
@@ -23,28 +25,26 @@ import {
   fonts,
   fontSize,
   ink,
+  lineHeight,
   opacity,
   spacing,
 } from "../../constants/theme";
 
 export default function Journal() {
+  const { logout } = useAuth();
   const [text, setText] = useState("");
   const [isEditing, setIsEditing] = useState(true);
   const { height } = useReanimatedKeyboardAnimation();
   const inputRef = useRef<TextInput>(null);
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const BUTTON_ACTIVE = ink(opacity.full);
-  const BUTTON_INACTIVE = ink(opacity.subtle);
   const saveTranslateY = useSharedValue(0);
   const saveOpacity = useSharedValue(1);
   const [saveError, setSaveError] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const buttonAnimatedStyle = useAnimatedStyle(() => {
-    const isKeyboardUp = height.value < -50;
     return {
-      bottom: Math.max(20, -height.value + 20),
-      backgroundColor: isKeyboardUp ? BUTTON_ACTIVE : BUTTON_INACTIVE,
+      bottom: Math.max(spacing.lg, -height.value + spacing.lg),
     };
   });
   const textAnimatedStyle = useAnimatedStyle(() => ({
@@ -112,6 +112,9 @@ export default function Journal() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.menuButton}>
+        <CircleButton icon="menu" variant="ghost" onPress={logout} />
+      </View>
       {saveError && (
         <Text style={styles.errorText}>Couldn't save. Try again.</Text>
       )}
@@ -133,10 +136,8 @@ export default function Journal() {
           placeholderTextColor={ink(opacity.subtle)}
         />
       </Animated.View>
-      <Animated.View style={[styles.clearButton, buttonAnimatedStyle]}>
-        <Pressable onPress={handleClear} style={styles.pressable}>
-          <Text style={styles.clearButtonText}>✕</Text>
-        </Pressable>
+      <Animated.View style={[styles.actionButton, buttonAnimatedStyle]}>
+        <CircleButton icon="arrow-up" onPress={handleClear} />
       </Animated.View>
       <Drawer visible={drawerVisible} onDismiss={handleDismissDrawer}>
         {({ translateY, screenHeight }) => (
@@ -157,10 +158,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  menuButton: {
+    position: "absolute",
+    top: spacing.md,
+    left: spacing.md,
+    zIndex: 20,
+  },
   input: {
     flex: 1,
     fontFamily: fonts.serif,
     fontSize: fontSize.writing,
+    lineHeight: lineHeight.writing,
     color: ink(opacity.full),
     textAlignVertical: "top",
     padding: spacing.lg,
@@ -173,25 +181,16 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 10,
   },
-  clearButton: {
+  actionButton: {
     position: "absolute",
     right: spacing.lg,
   },
-  pressable: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  clearButtonText: {
-    color: colors.background,
-    fontSize: fontSize.body,
-  },
   errorText: {
+    fontFamily: fonts.sans,
     textAlign: "center",
     color: ink(opacity.light),
     fontSize: fontSize.label,
+    lineHeight: lineHeight.label,
     paddingVertical: spacing.sm,
   },
 });

@@ -11,6 +11,15 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import {
+  colors,
+  fonts,
+  fontSize,
+  ink,
+  lineHeight,
+  opacity,
+  spacing,
+} from "../constants/theme";
 import EntryCard from "./EntryCard";
 
 const AnimatedFlatList = Animated.createAnimatedComponent(
@@ -128,36 +137,42 @@ export interface HistoryListProps {
   screenHeight: number;
   refreshKey: number;
 }
+
 const styles = StyleSheet.create({
   list: {
     flex: 1,
-    backgroundColor: "#FAF9F6",
+    backgroundColor: colors.background,
   },
   listContent: {
-    padding: 16,
+    padding: spacing.md,
   },
   item: {
-    paddingVertical: 14,
-    paddingHorizontal: 12,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm + spacing.xs,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(0,0,0,0.08)",
+    borderBottomColor: ink(opacity.border),
   },
   date: {
-    fontSize: 13,
-    color: "rgba(0,0,0,0.4)",
-    marginBottom: 4,
+    fontFamily: fonts.sans,
+    fontSize: fontSize.label,
+    lineHeight: lineHeight.label,
+    color: ink(opacity.light),
+    marginBottom: spacing.xs,
   },
   preview: {
-    fontSize: 16,
-    color: "rgba(0,0,0,0.6)",
-    lineHeight: 22,
+    fontFamily: fonts.serif,
+    fontSize: fontSize.body,
+    lineHeight: lineHeight.body,
+    color: ink(opacity.full),
   },
   empty: {
-    paddingTop: 60,
+    paddingTop: spacing.xxl + spacing.md,
     alignItems: "center",
   },
   emptyText: {
-    fontSize: 16,
-    color: "rgba(0,0,0,0.4)",
+    fontFamily: fonts.sans,
+    fontSize: fontSize.body,
+    lineHeight: lineHeight.body,
+    color: ink(opacity.light),
   },
 });
