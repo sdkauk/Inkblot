@@ -24,6 +24,26 @@ export function useAuth() {
     }
   };
 
+  const signup = async (): Promise<boolean> => {
+    try {
+      await authorize({
+        audience: config.auth0.audience,
+        scope: "openid profile email offline_access",
+        additionalParameters: { screen_hint: "signup" },
+      });
+      return true;
+    } catch (error) {
+      if (
+        error instanceof WebAuthError &&
+        error.type === WebAuthErrorCodes.USER_CANCELLED
+      ) {
+        return false;
+      }
+      console.error("Signup failed:", error);
+      return false;
+    }
+  };
+
   const logout = async () => {
     try {
       await clearSession();
@@ -42,5 +62,5 @@ export function useAuth() {
     }
   };
 
-  return { login, logout, user, isLoading, getAccessToken };
+  return { login, signup, logout, user, isLoading, getAccessToken };
 }

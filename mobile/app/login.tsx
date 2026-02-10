@@ -11,21 +11,29 @@ import { useAuth } from "@/hooks/useAuth";
 import { Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
 
 export default function Login() {
-  const { login } = useAuth();
-
-  const handleLogin = async () => {
-    await login();
-  };
+  const { login, signup } = useAuth();
 
   return (
     <SafeAreaView style={styles.container}>
-      <View>
+      <View style={styles.hero}>
         <Text style={styles.title}>Inkblot</Text>
         <Text style={styles.subtitle}>A place to think.</Text>
       </View>
-      <Pressable style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Get Started</Text>
-      </Pressable>
+
+      <View style={styles.bottom}>
+        <View style={styles.buttons}>
+          <Pressable style={styles.filledButton} onPress={signup}>
+            <Text style={styles.filledButtonText}>Sign Up</Text>
+          </Pressable>
+          <Pressable style={styles.outlineButton} onPress={login}>
+            <Text style={styles.outlineButtonText}>Log In</Text>
+          </Pressable>
+        </View>
+
+        <Pressable style={styles.offlineLink} onPress={() => {}}>
+          <Text style={styles.offlineLinkText}>Continue offline</Text>
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 }
@@ -35,14 +43,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
     paddingHorizontal: spacing.lg,
-    justifyContent: "space-between",
-    paddingTop: "30%",
-    paddingBottom: spacing.xxl,
+  },
+  hero: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   title: {
     fontFamily: fonts.serif,
-    fontSize: 64,
+    fontSize: 48,
     color: ink(opacity.full),
+    textAlign: "center",
   },
   subtitle: {
     fontFamily: fonts.sans,
@@ -50,19 +61,48 @@ const styles = StyleSheet.create({
     lineHeight: lineHeight.body,
     color: ink(opacity.medium),
     marginTop: spacing.sm,
+    textAlign: "center",
   },
-  button: {
-    backgroundColor: "transparent",
+  bottom: {
+    paddingBottom: spacing.xxl,
+  },
+  buttons: {
+    gap: spacing.sm,
+  },
+  outlineButton: {
     borderWidth: 1,
     borderColor: ink(opacity.full),
     borderRadius: 4,
     paddingVertical: spacing.md,
     alignItems: "center",
   },
-  buttonText: {
+  outlineButtonText: {
     fontFamily: fonts.sans,
     fontSize: fontSize.body,
     lineHeight: lineHeight.body,
     color: ink(opacity.full),
+  },
+  filledButton: {
+    backgroundColor: ink(opacity.full),
+    borderRadius: 4,
+    paddingVertical: spacing.md,
+    alignItems: "center",
+  },
+  filledButtonText: {
+    fontFamily: fonts.sans,
+    fontSize: fontSize.body,
+    lineHeight: lineHeight.body,
+    color: colors.background,
+  },
+  offlineLink: {
+    alignItems: "center",
+    paddingVertical: spacing.lg,
+    marginTop: spacing.md,
+  },
+  offlineLinkText: {
+    fontFamily: fonts.sans,
+    fontSize: fontSize.label,
+    lineHeight: lineHeight.label,
+    color: ink(opacity.light),
   },
 });

@@ -28,6 +28,7 @@ const AnimatedFlatList = Animated.createAnimatedComponent(
 
 export default function HistoryList({
   onDismiss,
+  onEntrySelect,
   translateY,
   screenHeight,
   refreshKey,
@@ -90,7 +91,12 @@ export default function HistoryList({
   const composedGesture = Gesture.Simultaneous(panGesture, nativeGesture);
 
   const Item = ({ entry }: { entry: JournalEntry }) => (
-    <Pressable onPress={() => setSelectedEntry(entry)}>
+    <Pressable
+      onPress={() => {
+        setSelectedEntry(entry);
+        onEntrySelect?.(true);
+      }}
+    >
       <View style={styles.item}>
         <Text style={styles.date}>{formatDate(entry.createdUtc)}</Text>
         <Text style={styles.preview} numberOfLines={2}>
@@ -124,7 +130,10 @@ export default function HistoryList({
       {selectedEntry && (
         <EntryCard
           entry={selectedEntry}
-          onDismiss={() => setSelectedEntry(null)}
+          onDismiss={() => {
+            setSelectedEntry(null);
+            onEntrySelect?.(false);
+          }}
         />
       )}
     </>
@@ -133,6 +142,7 @@ export default function HistoryList({
 
 export interface HistoryListProps {
   onDismiss: () => void;
+  onEntrySelect?: (selected: boolean) => void;
   translateY: SharedValue<number>;
   screenHeight: number;
   refreshKey: number;

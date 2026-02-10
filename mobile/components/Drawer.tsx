@@ -9,8 +9,11 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+const HEADER_HEIGHT = 44;
+
 export default function Drawer({ visible, onDismiss, children }: DrawerProps) {
   const screenHeight = Dimensions.get("window").height;
+  const drawerHeight = screenHeight - HEADER_HEIGHT;
   const translateY = useSharedValue(-screenHeight);
   const display = useSharedValue<"flex" | "none">("none");
 
@@ -49,9 +52,9 @@ export default function Drawer({ visible, onDismiss, children }: DrawerProps) {
   return (
     <View style={styles.view} pointerEvents={visible ? "auto" : "none"}>
       <Animated.View
-        style={[animatedStyle, styles.animatedView, { height: screenHeight }]}
+        style={[animatedStyle, styles.animatedView, { height: drawerHeight }]}
       >
-        {children({ translateY, screenHeight })}
+        {children({ translateY, screenHeight: drawerHeight })}
       </Animated.View>
     </View>
   );
@@ -71,7 +74,7 @@ export interface DrawerProps {
 const styles = StyleSheet.create({
   view: {
     position: "absolute",
-    top: 0,
+    top: HEADER_HEIGHT,
     left: 0,
     right: 0,
     bottom: 0,
