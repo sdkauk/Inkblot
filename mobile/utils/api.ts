@@ -8,11 +8,9 @@ export async function api(
 ): Promise<Response> {
   const headers = new Headers(options.headers);
   headers.set("Content-Type", "application/json");
-  headers.set("ngrok-skip-browser-warning", "true");
 
   try {
     const credentials = await auth0.credentialsManager.getCredentials();
-    console.log("Got token:", credentials.accessToken);
     headers.set("Authorization", `Bearer ${credentials.accessToken}`);
   } catch (error) {
     console.error("Failed to get credentials:", error);
@@ -20,8 +18,6 @@ export async function api(
   }
 
   const url = `${config.api.baseUrl}${path}`;
-  console.log();
-  console.log("Fetching:", url);
 
   return fetch(url, {
     ...options,
